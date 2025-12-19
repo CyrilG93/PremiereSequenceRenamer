@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionManifest Version="7.0" ExtensionBundleId="com.avsupport.sequencerenamer" ExtensionBundleVersion="1.0.0"
+                   ExtensionBundleName="Sequence Renamer" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Author>AVSupport</Author>
+  <Contact>support@avsupport.com</Contact>
+  <Legal>All rights reserved.</Legal>
+  <Abstract>Automatically rename sequences based on project folder name</Abstract>
+  <ExtensionList>
+    <Extension Id="com.avsupport.sequencerenamer.panel" Version="1.0.0"/>
+  </ExtensionList>
+  <ExecutionEnvironment>
+    <HostList>
+      <Host Name="PPRO" Version="[25.5,99.9]"/>
+    </HostList>
+    <LocaleList>
+      <Locale Code="All"/>
+    </LocaleList>
+    <RequiredRuntimeList>
+      <RequiredRuntime Name="CSXS" Version="11.0"/>
+    </RequiredRuntimeList>
+  </ExecutionEnvironment>
+  <DispatchInfoList>
+    <Extension Id="com.avsupport.sequencerenamer.panel">
+      <DispatchInfo>
+        <Resources>
+          <MainPath>./client/index.html</MainPath>
+          <ScriptPath>./host/host.jsx</ScriptPath>
+          <CEFCommandLine/>
+        </Resources>
+        <Lifecycle>
+          <AutoVisible>true</AutoVisible>
+        </Lifecycle>
+        <UI>
+          <Type>Panel</Type>
+          <Menu>Sequence Renamer</Menu>
+          <Geometry>
+            <Size>
+              <Height>200</Height>
+              <Width>320</Width>
+            </Size>
+            <MinSize>
+              <Height>150</Height>
+              <Width>280</Width>
+            </MinSize>
+            <MaxSize>
+              <Height>400</Height>
+              <Width>500</Width>
+            </MaxSize>
+          </Geometry>
+          <Icons/>
+        </UI>
+      </DispatchInfo>
+    </Extension>
+  </DispatchInfoList>
+</ExtensionManifest>
