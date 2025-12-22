@@ -1,6 +1,7 @@
 /**
  * Sequence Renamer - Premiere Pro Extension
  * Main JavaScript file with internationalization (i18n) support
+ * and real-time sequence monitoring
  */
 
 // CSInterface wrapper for communication with Premiere Pro
@@ -25,6 +26,11 @@ var DEFAULT_LANGUAGE = "en";  // English by default
 // Current translations
 var translations = {};
 var currentLang = DEFAULT_LANGUAGE;
+
+// Auto-rename monitoring
+var monitorInterval = null;
+var MONITOR_INTERVAL_MS = 2500;  // Check every 2.5 seconds (lightweight)
+var lastSequenceCount = -1;      // Cache to avoid unnecessary work
 
 /**
  * Initialize extension
@@ -62,11 +68,76 @@ function init() {
             languageSelect.addEventListener('change', onLanguageChange);
         }
 
-        // Check if auto-rename is enabled and execute on startup
+        // Start monitoring if auto mode is enabled
         if (autoRenameToggle.checked) {
-            setTimeout(function () {
-                executeRename(true);  // true = auto mode
-            }, 500);  // Small delay to ensure Premiere is ready
+            startMonitoring();
+        }
+    });
+}
+
+/**
+ * Start monitoring for new sequences (lightweight polling)
+ */
+function startMonitoring() {
+    // Stop any existing monitor
+    stopMonitoring();
+
+    // Reset cache
+    lastSequenceCount = -1;
+
+    // Start new monitor
+    monitorInterval = setInterval(checkForTemplateSequence, MONITOR_INTERVAL_MS);
+
+    // Also check immediately
+    checkForTemplateSequence();
+
+    console.log('Auto-rename monitoring started');
+}
+
+/**
+ * Stop monitoring for sequences
+ */
+function stopMonitoring() {
+    if (monitorInterval) {
+        clearInterval(monitorInterval);
+        monitorInterval = null;
+        console.log('Auto-rename monitoring stopped');
+    }
+}
+
+/**
+ * Check if template sequence exists and rename it
+ * This is called periodically when auto mode is on
+ */
+function checkForTemplateSequence() {
+    var settings = getCurrentSettings();
+
+    // Skip if no template name configured
+    if (!settings.templateName || settings.templateName.trim() === '') {
+        return;
+    }
+
+    // First, get sequence count to check if anything changed
+    csInterface.evalScript('app.project && app.project.sequences ? app.project.sequences.numSequences : -1', function (countResult) {
+        var currentCount = parseInt(countResult, 10);
+
+        // Skip if project not open or count unchanged
+        if (currentCount === -1) {
+            return;
+        }
+
+        // If count changed or first check, do a full check
+        if (currentCount !== lastSequenceCount) {
+            lastSequenceCount = currentCount;
+
+            // Check if template sequence exists
+            var checkScript = 'findSequenceByName("' + settings.templateName.replace(/"/g, '\\"') + '") !== null';
+            csInterface.evalScript(checkScript, function (result) {
+                if (result === 'true') {
+                    // Template sequence found - rename it silently
+                    executeRename(true);
+                }
+            });
         }
     });
 }
@@ -221,8 +292,10 @@ function onToggleChange() {
     saveSettings();
 
     if (autoRenameToggle.checked) {
+        startMonitoring();
         showStatus('✓ ' + t('messages.autoEnabled'), 'success');
     } else {
+        stopMonitoring();
         showStatus(t('messages.autoDisabled'), 'info');
     }
 }
@@ -239,19 +312,21 @@ function onRenameClick() {
  * @param {boolean} isAutoMode - Whether this is auto mode
  */
 function executeRename(isAutoMode) {
-    // Disable button during execution
-    renameBtn.disabled = true;
-    var originalHTML = renameBtn.innerHTML;
-    renameBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.3"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><span class="button-text">' + t('renameInProgress') + '</span>';
+    // Don't disable button in auto mode
+    if (!isAutoMode) {
+        renameBtn.disabled = true;
+        var originalHTML = renameBtn.innerHTML;
+        renameBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.3"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><span class="button-text">' + t('renameInProgress') + '</span>';
+    }
 
     // Get current settings
     var settings = getCurrentSettings();
 
     // Check if template name is set
     if (!settings.templateName || settings.templateName.trim() === '') {
-        renameBtn.disabled = false;
-        renameBtn.innerHTML = originalHTML;
         if (!isAutoMode) {
+            renameBtn.disabled = false;
+            renameBtn.innerHTML = originalHTML;
             showStatus('⚠ ' + t('errors.sequenceNotFound'), 'error');
         }
         return;
@@ -264,9 +339,11 @@ function executeRename(isAutoMode) {
 
     // Call ExtendScript function with parameters
     csInterface.evalScript(scriptCall, function (result) {
-        // Re-enable button
-        renameBtn.disabled = false;
-        renameBtn.innerHTML = originalHTML;
+        // Re-enable button (only if not auto mode)
+        if (!isAutoMode) {
+            renameBtn.disabled = false;
+            renameBtn.innerHTML = originalHTML;
+        }
 
         // Parse result
         try {
@@ -275,16 +352,15 @@ function executeRename(isAutoMode) {
             if (response.success) {
                 showStatus('✓ ' + t('messages.renamed') + ' "' + response.newName + '"', 'success');
             } else {
-                // Only show error if not in auto mode or if it's a real error
-                if (!isAutoMode || response.error.indexOf('not found') === -1) {
+                // Only show error if not in auto mode
+                if (!isAutoMode) {
                     showStatus('⚠ ' + response.error, 'error');
-                } else {
-                    // In auto mode, silently ignore "not found" errors
-                    console.log('Auto-rename: No template sequence found');
                 }
             }
         } catch (e) {
-            showStatus('⚠ ' + t('messages.error') + ' ' + result, 'error');
+            if (!isAutoMode) {
+                showStatus('⚠ ' + t('messages.error') + ' ' + result, 'error');
+            }
         }
     });
 }
