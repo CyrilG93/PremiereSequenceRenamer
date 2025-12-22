@@ -17,10 +17,15 @@ body {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    position: relative;
 }
 
-/* COMPACT MODE: Hide title by default */
+/* COMPACT MODE: Hide title and language selector by default */
 .title {
+    display: none;
+}
+
+.lang-selector {
     display: none;
 }
 
@@ -176,6 +181,39 @@ input:checked+.slider:before {
         gap: 16px;
     }
 
+    /* Language selector - top right corner */
+    .lang-selector {
+        display: block;
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 10;
+    }
+
+    .lang-select {
+        padding: 4px 8px;
+        background-color: #383838;
+        border: 1px solid #555;
+        border-radius: 4px;
+        color: #e0e0e0;
+        font-size: 16px;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+    }
+
+    .lang-select:focus {
+        outline: none;
+        border-color: #0d7aff;
+    }
+
+    .lang-select option {
+        background-color: #2d2d2d;
+        color: #e0e0e0;
+        font-size: 16px;
+    }
+
     .title {
         display: block !important;
         font-size: 18px;
@@ -183,6 +221,8 @@ input:checked+.slider:before {
         color: #ffffff;
         text-align: center;
         margin: 0 0 4px 0;
+        padding-right: 40px;
+        /* Space for language selector */
     }
 
     .compact-controls {
@@ -297,29 +337,6 @@ input:checked+.slider:before {
     .depth-hint {
         font-size: 11px;
         color: #888;
-    }
-
-    /* Language selector */
-    .language-select {
-        width: 100%;
-        padding: 8px 10px;
-        background-color: #2d2d2d;
-        border: 1px solid #555;
-        border-radius: 4px;
-        color: #e0e0e0;
-        font-size: 13px;
-        font-family: inherit;
-        cursor: pointer;
-    }
-
-    .language-select:focus {
-        outline: none;
-        border-color: #0d7aff;
-    }
-
-    .language-select option {
-        background-color: #2d2d2d;
-        color: #e0e0e0;
     }
 
     .status-message {
