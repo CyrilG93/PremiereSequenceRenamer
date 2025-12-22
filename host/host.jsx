@@ -1,5 +1,10 @@
-// Premiere Pro ExtendScript for Sequence Renaming
-// This script runs in the ExtendScript context and has access to Premiere Pro API
+/**
+ * Premiere Pro ExtendScript for Sequence Renaming
+ * This script runs in the ExtendScript context and has access to Premiere Pro API
+ * 
+ * @author AVSupport
+ * @version 1.1.0
+ */
 
 /**
  * Main function to rename the template sequence
@@ -9,10 +14,15 @@
  */
 function renameSequence(templateName, folderDepth) {
     try {
-        // Use defaults if not provided
+        // Validate template name
         if (!templateName || templateName === "") {
-            templateName = "Nomme ta séquence ! 1080P25";
+            return JSON.stringify({
+                success: false,
+                error: "Template sequence name is empty"
+            });
         }
+
+        // Validate and parse folder depth
         if (folderDepth === undefined || folderDepth === null || isNaN(folderDepth)) {
             folderDepth = 2;
         }
@@ -22,7 +32,7 @@ function renameSequence(templateName, folderDepth) {
         if (!app.project || !app.project.rootItem) {
             return JSON.stringify({
                 success: false,
-                error: "Aucun projet ouvert"
+                error: "No project open"
             });
         }
 
@@ -31,7 +41,7 @@ function renameSequence(templateName, folderDepth) {
         if (!projectPath) {
             return JSON.stringify({
                 success: false,
-                error: "Le projet n'a pas encore été sauvegardé"
+                error: "Project has not been saved yet"
             });
         }
 
@@ -40,7 +50,7 @@ function renameSequence(templateName, folderDepth) {
         if (!parentFolderName) {
             return JSON.stringify({
                 success: false,
-                error: "Impossible d'extraire le nom du dossier (depth: " + folderDepth + ")"
+                error: "Unable to extract folder name (depth: " + folderDepth + ")"
             });
         }
 
@@ -50,7 +60,7 @@ function renameSequence(templateName, folderDepth) {
         if (!targetSequence) {
             return JSON.stringify({
                 success: false,
-                error: "Séquence '" + templateName + "' not found"
+                error: "Sequence '" + templateName + "' not found"
             });
         }
 
@@ -60,13 +70,13 @@ function renameSequence(templateName, folderDepth) {
         return JSON.stringify({
             success: true,
             newName: parentFolderName,
-            message: "Séquence renommée avec succès"
+            message: "Sequence renamed successfully"
         });
 
     } catch (e) {
         return JSON.stringify({
             success: false,
-            error: "Erreur: " + e.toString()
+            error: "Error: " + e.toString()
         });
     }
 }

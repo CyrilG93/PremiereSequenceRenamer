@@ -1,0 +1,28 @@
+{
+    "appTitle": "Sequence Renamer",
+    "autoRename": "Auto-rename au démarrage",
+    "autoRenameShort": "Auto",
+    "renameButton": "Renommer",
+    "renameButtonFull": "Renommer la séquence",
+    "renameInProgress": "En cours",
+    "settings": {
+        "templateName": "Nom de la séquence template :",
+        "templatePlaceholder": "Entrez le nom de la séquence...",
+        "folderDepth": "Dossiers à remonter :",
+        "folderDepthHint": "0 = dossier du projet",
+        "language": "Langue :"
+    },
+    "messages": {
+        "autoEnabled": "Mode automatique activé",
+        "autoDisabled": "Mode automatique désactivé",
+        "renamed": "Séquence renommée :",
+        "error": "Erreur :"
+    },
+    "errors": {
+        "noProject": "Aucun projet ouvert",
+        "notSaved": "Le projet n'a pas encore été sauvegardé",
+        "extractFailed": "Impossible d'extraire le nom du dossier",
+        "sequenceNotFound": "Séquence non trouvée",
+        "generalError": "Erreur"
+    }
+}

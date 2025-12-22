@@ -1,0 +1,28 @@
+{
+    "appTitle": "Sequence Renamer",
+    "autoRename": "Auto-rename on startup",
+    "autoRenameShort": "Auto",
+    "renameButton": "Rename",
+    "renameButtonFull": "Rename sequence",
+    "renameInProgress": "In progress",
+    "settings": {
+        "templateName": "Template sequence name:",
+        "templatePlaceholder": "Enter sequence name...",
+        "folderDepth": "Folders to go up:",
+        "folderDepthHint": "0 = project folder",
+        "language": "Language:"
+    },
+    "messages": {
+        "autoEnabled": "Auto mode enabled",
+        "autoDisabled": "Auto mode disabled",
+        "renamed": "Sequence renamed:",
+        "error": "Error:"
+    },
+    "errors": {
+        "noProject": "No project open",
+        "notSaved": "Project has not been saved yet",
+        "extractFailed": "Unable to extract folder name",
+        "sequenceNotFound": "Sequence not found",
+        "generalError": "Error"
+    }
+}
