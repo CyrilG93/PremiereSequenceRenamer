@@ -3,10 +3,21 @@
 
 /**
  * Main function to rename the template sequence
+ * @param {string} templateName - Name of the sequence to find and rename
+ * @param {number} folderDepth - Number of folders to go up from project file (0 = same folder, 1 = parent, etc.)
  * @returns {string} JSON string with success status and message
  */
-function renameSequence() {
+function renameSequence(templateName, folderDepth) {
     try {
+        // Use defaults if not provided
+        if (!templateName || templateName === "") {
+            templateName = "Nomme ta séquence ! 1080P25";
+        }
+        if (folderDepth === undefined || folderDepth === null || isNaN(folderDepth)) {
+            folderDepth = 2;
+        }
+        folderDepth = parseInt(folderDepth, 10);
+
         // Check if a project is open
         if (!app.project || !app.project.rootItem) {
             return JSON.stringify({
@@ -25,22 +36,21 @@ function renameSequence() {
         }
 
         // Extract parent folder name from project path
-        var parentFolderName = extractParentFolderName(projectPath);
+        var parentFolderName = extractParentFolderName(projectPath, folderDepth);
         if (!parentFolderName) {
             return JSON.stringify({
                 success: false,
-                error: "Impossible d'extraire le nom du dossier parent"
+                error: "Impossible d'extraire le nom du dossier (depth: " + folderDepth + ")"
             });
         }
 
         // Find the template sequence
-        var templateName = "Nomme ta séquence ! 1080P25";
         var targetSequence = findSequenceByName(templateName);
 
         if (!targetSequence) {
             return JSON.stringify({
                 success: false,
-                error: "Séquence template '" + templateName + "' not found"
+                error: "Séquence '" + templateName + "' not found"
             });
         }
 
@@ -65,9 +75,10 @@ function renameSequence() {
  * Extract parent folder name from project path
  * Handles both Mac (/) and Windows (\) path separators
  * @param {string} projectPath - Full path to the project file
+ * @param {number} folderDepth - Number of folders to go up (0 = project folder, 1 = parent, etc.)
  * @returns {string} Parent folder name or null
  */
-function extractParentFolderName(projectPath) {
+function extractParentFolderName(projectPath, folderDepth) {
     try {
         // Determine path separator based on OS
         var separator = "/";
@@ -89,11 +100,17 @@ function extractParentFolderName(projectPath) {
             }
         }
 
-        // The structure is: ParentFolder/PROJET/project.prproj
-        // So we need to go back 2 levels from the project file
-        if (cleanParts.length >= 3) {
-            // Get the parent folder (2 levels up from the .prproj file)
-            return cleanParts[cleanParts.length - 3];
+        // Remove the filename (project.prproj)
+        cleanParts.pop();
+
+        // Calculate the index based on folderDepth
+        // folderDepth 0 = last folder (where .prproj is)
+        // folderDepth 1 = parent folder
+        // folderDepth 2 = grandparent folder
+        var targetIndex = cleanParts.length - 1 - folderDepth;
+
+        if (targetIndex >= 0 && targetIndex < cleanParts.length) {
+            return cleanParts[targetIndex];
         }
 
         return null;

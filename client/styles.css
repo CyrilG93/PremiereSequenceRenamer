@@ -19,6 +19,11 @@ body {
     gap: 8px;
 }
 
+/* COMPACT MODE: Hide title by default */
+.title {
+    display: none;
+}
+
 /* COMPACT MODE: Compact controls layout */
 .compact-controls {
     display: flex;
@@ -130,7 +135,11 @@ input:checked+.slider:before {
     display: inline;
 }
 
-/* COMPACT MODE: Hide status by default */
+/* COMPACT MODE: Hide settings and status by default */
+.settings-section {
+    display: none;
+}
+
 .status-message {
     display: none;
 }
@@ -224,6 +233,78 @@ input:checked+.slider:before {
 
     .button-text::after {
         content: " la séquence";
+    }
+
+    /* Settings section styles - visible in normal mode */
+    .settings-section {
+        display: block;
+        background-color: #383838;
+        border-radius: 6px;
+        padding: 12px;
+    }
+
+    .setting-row {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 12px;
+    }
+
+    .setting-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .setting-row label {
+        font-size: 12px;
+        color: #aaa;
+    }
+
+    .setting-row input[type="text"] {
+        width: 100%;
+        padding: 8px 10px;
+        background-color: #2d2d2d;
+        border: 1px solid #555;
+        border-radius: 4px;
+        color: #e0e0e0;
+        font-size: 13px;
+        font-family: inherit;
+    }
+
+    .setting-row input[type="text"]:focus {
+        outline: none;
+        border-color: #0d7aff;
+    }
+
+    .setting-row input[type="text"]::placeholder {
+        color: #777;
+    }
+
+    .depth-input-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .setting-row input[type="number"] {
+        width: 60px;
+        padding: 8px 10px;
+        background-color: #2d2d2d;
+        border: 1px solid #555;
+        border-radius: 4px;
+        color: #e0e0e0;
+        font-size: 13px;
+        font-family: inherit;
+        text-align: center;
+    }
+
+    .setting-row input[type="number"]:focus {
+        outline: none;
+        border-color: #0d7aff;
+    }
+
+    .depth-hint {
+        font-size: 11px;
+        color: #888;
     }
 
     .status-message {

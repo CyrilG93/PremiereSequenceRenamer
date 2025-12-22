@@ -10,7 +10,7 @@
 
 <body>
     <div class="container">
-        <h1 class="title" style="display: none;">Sequence Renamer</h1>
+        <h1 class="title">Sequence Renamer</h1>
 
         <div class="compact-controls">
             <div class="toggle-container">
@@ -32,6 +32,21 @@
                 </svg>
                 <span class="button-text">Renommer</span>
             </button>
+        </div>
+
+        <!-- Settings section - only visible in normal mode -->
+        <div class="settings-section">
+            <div class="setting-row">
+                <label for="templateName">Nom de la séquence template :</label>
+                <input type="text" id="templateName" placeholder="Nomme ta séquence ! 1080P25">
+            </div>
+            <div class="setting-row">
+                <label for="folderDepth">Dossiers à remonter :</label>
+                <div class="depth-input-container">
+                    <input type="number" id="folderDepth" min="0" max="10" value="2">
+                    <span class="depth-hint">0 = dossier du projet</span>
+                </div>
+            </div>
         </div>
 
         <div id="statusMessage" class="status-message"></div>
