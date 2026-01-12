@@ -1,3 +1,147 @@
+# Sequence Renamer - Premiere Pro Extension
+
+CEP Extension for Adobe Premiere Pro 25.5+ that automatically renames template sequences based on the parent folder name of the project.
+
+## 📋 Features
+
+- ✅ **Automatic mode**: Renames the sequence on extension startup (can be enabled/disabled)
+- ✅ **Manual mode**: Button to trigger renaming at any time
+- ✅ **Preferences saved**: Toggle state is remembered
+- ✅ **Mac & Windows compatible**: Automatic handling of `/` and `\` paths
+- ✅ **Modern interface**: Dark design adapted to Premiere Pro
+
+## 🎯 How it works
+
+The extension searches for a sequence named **"Nomme ta séquence ! 1080P25"** and renames it with the parent folder name of the project.
+
+**Example structure:**
+```
+12 01 Project Name/
+├── MEDIAS/
+├── ELEMENTS/
+└── PROJECT/
+    └── Projectname.prproj
+```
+
+The sequence will be renamed to: **"12 01 Project Name"**
+
+## 📦 Installation
+
+### Mac
+1. Copy the `PremiereSequenceRenamer` folder to:
+   ```
+   ~/Library/Application Support/Adobe/CEP/extensions/
+   ```
+
+2. Enable debug mode:
+   - Open Terminal
+   - Run:
+     ```bash
+     defaults write com.adobe.CSXS.11 PlayerDebugMode 1
+     ```
+
+### Windows
+1. Copy the `PremiereSequenceRenamer` folder to:
+   ```
+   C:\Program Files (x86)\Common Files\Adobe\CEP\extensions\
+   ```
+
+2. Enable debug mode:
+   - Open Registry Editor (regedit)
+   - Navigate to: `HKEY_CURRENT_USER\Software\Adobe\CSXS.11`
+   - Create a new `String` key named `PlayerDebugMode` with value `1`
+
+### Verify installation
+1. Restart Premiere Pro
+2. Go to **Window > Extensions > Sequence Renamer**
+3. The extension should appear
+
+## 🚀 Usage
+
+### Automatic mode
+1. Open the extension (**Window > Extensions > Sequence Renamer**)
+2. Enable the toggle **"Auto-rename at startup"**
+3. Each time the extension opens, the sequence will be automatically renamed if it exists
+
+### Manual mode
+1. Open the extension
+2. Click the button **"Rename sequence"**
+3. A confirmation message will appear
+
+## 🔧 Project structure
+
+```
+PremiereSequenceRenamer/
+├── .debug                    # Debug configuration
+├── CSXS/
+│   └── manifest.xml         # CEP manifest
+├── client/
+│   ├── index.html           # User interface
+│   ├── styles.css           # Styles
+│   └── main.js              # Client logic
+└── host/
+    ├── host.jsx             # ExtendScript (Premiere API)
+    └── CSInterface.js       # Adobe CEP library
+```
+
+## ⚙️ Configuration
+
+### Template sequence name
+By default, the extension searches for: `"Nomme ta séquence ! 1080P25"`
+
+To change this name, edit the file `host/host.jsx` line 38:
+```javascript
+var templateName = "Your new name";
+```
+
+### Folder structure
+The extension assumes the project is in a subfolder (e.g., `PROJECT/`) of the parent folder to use for renaming.
+
+If your structure is different, modify the logic in `extractParentFolderName()` in `host/host.jsx`.
+
+## 🐛 Troubleshooting
+
+### Extension doesn't appear in the menu
+- Check that debug mode is enabled
+- Check that the folder is in the `extensions` directory
+- Restart Premiere Pro
+
+### "No project open"
+- Make sure a project is open in Premiere Pro
+- The project must be saved at least once
+
+### "Template sequence not found"
+- Check that the sequence name exactly matches `"Nomme ta séquence ! 1080P25"`
+- Uppercase, spaces, and special characters must be identical
+
+### "Cannot extract parent folder name"
+- Check that your project is in a folder structure
+- The project must be at least 2 levels deep (e.g., `Parent/PROJECT/file.prproj`)
+
+## 📝 Notes
+
+- The extension only modifies the sequence with the exact template name
+- If no sequence matches, nothing happens
+- Renaming is instant and cannot be undone (use Ctrl+Z in Premiere)
+- Compatible with Premiere Pro 25.5 and later versions
+
+## 👨‍💻 Development
+
+To modify the extension:
+1. Edit files in the installation folder
+2. Reload the extension in Premiere Pro (close and reopen the panel)
+3. Check the debug console: `http://localhost:8088` in Chrome
+
+## 📄 License
+
+© 2025 AVSupport. All rights reserved.
+
+---
+
+# 🇫🇷 Version Française
+
+---
+
 # Sequence Renamer - Extension Premiere Pro
 
 Extension CEP pour Adobe Premiere Pro 25.5+ qui renomme automatiquement les séquences template en fonction du nom du dossier parent du projet.
