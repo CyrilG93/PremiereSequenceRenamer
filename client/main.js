@@ -131,7 +131,7 @@ function checkForTemplateSequence() {
             lastSequenceCount = currentCount;
 
             // Check if template sequence exists
-            var checkScript = 'findSequenceByName("' + settings.templateName.replace(/"/g, '\\"') + '") !== null';
+            var checkScript = 'SequenceRenamer_findSequenceByName("' + settings.templateName.replace(/"/g, '\\"') + '") !== null';
             csInterface.evalScript(checkScript, function (result) {
                 if (result === 'true') {
                     // Template sequence found - rename it silently
@@ -333,7 +333,7 @@ function executeRename(isAutoMode) {
     }
 
     // Build script call with parameters
-    var scriptCall = 'renameSequence("' +
+    var scriptCall = 'SequenceRenamer_renameSequence("' +
         settings.templateName.replace(/"/g, '\\"') + '", ' +
         settings.folderDepth + ')';
 

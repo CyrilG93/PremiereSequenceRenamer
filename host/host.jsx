@@ -12,7 +12,7 @@
  * @param {number} folderDepth - Number of folders to go up from project file (0 = same folder, 1 = parent, etc.)
  * @returns {string} JSON string with success status and message
  */
-function renameSequence(templateName, folderDepth) {
+function SequenceRenamer_renameSequence(templateName, folderDepth) {
     try {
         // Validate template name
         if (!templateName || templateName === "") {
@@ -46,7 +46,7 @@ function renameSequence(templateName, folderDepth) {
         }
 
         // Extract parent folder name from project path
-        var parentFolderName = extractParentFolderName(projectPath, folderDepth);
+        var parentFolderName = SequenceRenamer_extractParentFolderName(projectPath, folderDepth);
         if (!parentFolderName) {
             return JSON.stringify({
                 success: false,
@@ -55,7 +55,7 @@ function renameSequence(templateName, folderDepth) {
         }
 
         // Find the template sequence
-        var targetSequence = findSequenceByName(templateName);
+        var targetSequence = SequenceRenamer_findSequenceByName(templateName);
 
         if (!targetSequence) {
             return JSON.stringify({
@@ -88,7 +88,7 @@ function renameSequence(templateName, folderDepth) {
  * @param {number} folderDepth - Number of folders to go up (0 = project folder, 1 = parent, etc.)
  * @returns {string} Parent folder name or null
  */
-function extractParentFolderName(projectPath, folderDepth) {
+function SequenceRenamer_extractParentFolderName(projectPath, folderDepth) {
     try {
         // Determine path separator based on OS
         var separator = "/";
@@ -134,7 +134,7 @@ function extractParentFolderName(projectPath, folderDepth) {
  * @param {string} sequenceName - Name of the sequence to find
  * @returns {Sequence} Sequence object or null
  */
-function findSequenceByName(sequenceName) {
+function SequenceRenamer_findSequenceByName(sequenceName) {
     try {
         var numSequences = app.project.sequences.numSequences;
 
@@ -155,7 +155,7 @@ function findSequenceByName(sequenceName) {
  * Get all sequences in the project (for debugging)
  * @returns {string} JSON string with list of sequence names
  */
-function listAllSequences() {
+function SequenceRenamer_listAllSequences() {
     try {
         var sequences = [];
         var numSequences = app.project.sequences.numSequences;
