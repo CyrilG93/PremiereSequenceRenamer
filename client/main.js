@@ -224,14 +224,87 @@ function onLanguageChange() {
     });
 }
 
+// File-based settings constants
+var sr_fs = require('fs');
+var sr_path = require('path');
+var sr_os = require('os');
+
 /**
- * Load settings from localStorage
+ * Get persistent settings file path
+ */
+function getSettingsFilePath() {
+    var homeDir = sr_os.homedir();
+    var platform = sr_os.platform();
+    var settingsDir;
+
+    if (platform === 'darwin') {
+        settingsDir = sr_path.join(homeDir, 'Library', 'Application Support', 'PremiereSequenceRenamer');
+    } else {
+        settingsDir = sr_path.join(process.env.APPDATA || homeDir, 'PremiereSequenceRenamer');
+    }
+
+    return sr_path.join(settingsDir, 'settings.json');
+}
+
+/**
+ * Read settings from file
+ */
+function readSettingsFromFile() {
+    try {
+        var filePath = getSettingsFilePath();
+        if (sr_fs.existsSync(filePath)) {
+            var data = sr_fs.readFileSync(filePath, 'utf8');
+            return JSON.parse(data);
+        }
+    } catch (e) {
+        console.error('Error reading settings file:', e);
+    }
+    return null;
+}
+
+/**
+ * Write settings to file
+ */
+function writeSettingsToFile(settings) {
+    try {
+        var filePath = getSettingsFilePath();
+        var dir = sr_path.dirname(filePath);
+
+        if (!sr_fs.existsSync(dir)) {
+            sr_fs.mkdirSync(dir, { recursive: true });
+        }
+
+        sr_fs.writeFileSync(filePath, JSON.stringify(settings, null, 2), 'utf8');
+        console.log('Settings saved to file:', filePath);
+    } catch (e) {
+        console.error('Error writing settings file:', e);
+    }
+}
+
+/**
+ * Load settings from persistent file or localStorage
  */
 function loadSettings() {
     try {
-        var settings = localStorage.getItem(SETTINGS_KEY);
-        if (settings) {
-            var parsed = JSON.parse(settings);
+        var parsed = null;
+        var migrated = false;
+
+        // 1. Try file first
+        var fileSettings = readSettingsFromFile();
+        if (fileSettings) {
+            parsed = fileSettings;
+            console.log('Settings loaded from persistent file');
+        } else {
+            // 2. Fallback to localStorage
+            var localSettings = localStorage.getItem(SETTINGS_KEY);
+            if (localSettings) {
+                parsed = JSON.parse(localSettings);
+                migrated = true;
+                console.log('Settings migrated from localStorage');
+            }
+        }
+
+        if (parsed) {
             autoRenameToggle.checked = parsed.autoRename || false;
 
             if (templateNameInput) {
@@ -242,6 +315,17 @@ function loadSettings() {
             }
             // Load language preference
             currentLang = parsed.language || DEFAULT_LANGUAGE;
+
+            // If migrated, save to file immediately
+            if (migrated) {
+                var settingsToSave = {
+                    autoRename: parsed.autoRename,
+                    templateName: parsed.templateName,
+                    folderDepth: parsed.folderDepth,
+                    language: currentLang
+                };
+                writeSettingsToFile(settingsToSave);
+            }
         } else {
             // First install - set defaults
             if (templateNameInput) {
@@ -251,7 +335,22 @@ function loadSettings() {
                 folderDepthInput.value = DEFAULT_FOLDER_DEPTH;
             }
             currentLang = DEFAULT_LANGUAGE;
+
+            // Save defaults to file
+            var defaultSettings = {
+                autoRename: false,
+                templateName: DEFAULT_TEMPLATE_NAME,
+                folderDepth: DEFAULT_FOLDER_DEPTH,
+                language: currentLang
+            };
+            writeSettingsToFile(defaultSettings);
         }
+
+        // Ensure localStorage is synced
+        if (parsed) {
+            localStorage.setItem(SETTINGS_KEY, JSON.stringify(parsed));
+        }
+
     } catch (e) {
         console.error('Error loading settings:', e);
     }
@@ -268,6 +367,9 @@ function saveSettings() {
             folderDepth: folderDepthInput ? parseInt(folderDepthInput.value, 10) : DEFAULT_FOLDER_DEPTH,
             language: currentLang
         };
+        // Save to persistent file
+        writeSettingsToFile(settings);
+        // Also save to localStorage as backup
         localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
     } catch (e) {
         console.error('Error saving settings:', e);
