@@ -18,7 +18,13 @@
             </select>
         </div>
 
-        <h1 class="title" data-i18n="appTitle">Sequence Renamer</h1>
+        <div class="full-view-only">
+            <h1 class="title">
+                <span data-i18n="appTitle">Sequence Renamer</span>
+                <span id="versionInfo" class="version-badge"></span>
+            </h1>
+            <div id="updateBanner"></div>
+        </div>
 
         <div class="compact-controls">
             <div class="toggle-container">
@@ -44,6 +50,9 @@
 
         <!-- Settings section - only visible in normal mode -->
         <div class="settings-section">
+            <h3 style="margin: 0 0 10px 0; font-size: 14px; color: #ccc;">
+                <span data-i18n="settings.title">Settings</span>
+            </h3>
             <div class="setting-row">
                 <label for="templateName" data-i18n="settings.templateName">Template sequence name:</label>
                 <input type="text" id="templateName" data-i18n-placeholder="settings.templatePlaceholder"

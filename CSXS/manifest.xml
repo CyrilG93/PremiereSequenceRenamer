@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ExtensionManifest Version="7.0" ExtensionBundleId="com.avsupport.sequencerenamer" ExtensionBundleVersion="1.0.2"
+<ExtensionManifest Version="7.0" ExtensionBundleId="com.avsupport.sequencerenamer" ExtensionBundleVersion="1.0.3"
                    ExtensionBundleName="Sequence Renamer" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Author>AVSupport</Author>
   <Contact>support@avsupport.com</Contact>
   <Legal>All rights reserved.</Legal>
   <Abstract>Automatically rename sequences based on project folder name</Abstract>
   <ExtensionList>
-    <Extension Id="com.avsupport.sequencerenamer.panel" Version="1.0.2"/>
+    <Extension Id="com.avsupport.sequencerenamer.panel" Version="1.0.3"/>
   </ExtensionList>
   <ExecutionEnvironment>
     <HostList>

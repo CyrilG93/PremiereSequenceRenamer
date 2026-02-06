@@ -23,6 +23,10 @@ var DEFAULT_TEMPLATE_NAME = "";  // Empty by default on first install
 var DEFAULT_FOLDER_DEPTH = 2;
 var DEFAULT_LANGUAGE = "en";  // English by default
 
+// UPDATE SYSTEM CONSTANTS
+const GITHUB_REPO = 'CyrilG93/PremiereSequenceRenamer';
+let CURRENT_VERSION = '1.0.3';
+
 // Current translations
 var translations = {};
 var currentLang = DEFAULT_LANGUAGE;
@@ -31,6 +35,136 @@ var currentLang = DEFAULT_LANGUAGE;
 var monitorInterval = null;
 var MONITOR_INTERVAL_MS = 2500;  // Check every 2.5 seconds (lightweight)
 var lastSequenceCount = -1;      // Cache to avoid unnecessary work
+
+/**
+ * Compare two semantic versions
+ * Returns 1 if v1 > v2, -1 if v1 < v2, 0 if equal
+ */
+function compareVersions(v1, v2) {
+    const parts1 = v1.split('.').map(Number);
+    const parts2 = v2.split('.').map(Number);
+    const length = Math.max(parts1.length, parts2.length);
+
+    for (let i = 0; i < length; i++) {
+        const p1 = parts1[i] || 0;
+        const p2 = parts2[i] || 0;
+        if (p1 > p2) return 1;
+        if (p1 < p2) return -1;
+    }
+    return 0;
+}
+
+/**
+ * Get current application version from manifest
+ */
+function getAppVersion() {
+    try {
+        const csInterface = new CSInterface();
+        const extensionId = csInterface.getExtensionID();
+        const extensions = csInterface.getExtensions([extensionId]);
+        if (extensions && extensions.length > 0) {
+            return extensions[0].baseVersion;
+        }
+    } catch (e) {
+        console.error('Error getting app version:', e);
+    }
+    return CURRENT_VERSION;
+}
+
+/**
+ * Check for updates from GitHub Release
+ */
+async function checkForUpdates() {
+    try {
+        const https = window.require('https');
+
+        const options = {
+            hostname: 'api.github.com',
+            path: `/repos/${GITHUB_REPO}/releases/latest`,
+            method: 'GET',
+            headers: {
+                'User-Agent': 'PremiereSequenceRenamer',
+                'Accept': 'application/vnd.github.v3+json'
+            }
+        };
+
+        const req = https.request(options, (res) => {
+            let data = '';
+
+            res.on('data', (chunk) => {
+                data += chunk;
+            });
+
+            res.on('end', () => {
+                if (res.statusCode === 200) {
+                    try {
+                        const release = JSON.parse(data);
+                        handleUpdateResponse(release, CURRENT_VERSION); // Use CURRENT_VERSION for testing
+                    } catch (e) {
+                        console.error('Error parsing GitHub response:', e);
+                    }
+                }
+            });
+        });
+
+        req.on('error', (error) => {
+            console.error('Error checking for updates:', error);
+        });
+
+        req.end();
+
+    } catch (e) {
+        console.error('Node.js https module not available, falling back to fetch', e);
+        // Fallback for browsers (though CEP usually supports Node)
+        try {
+            const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`);
+            if (response.ok) {
+                const release = await response.json();
+                handleUpdateResponse(release, CURRENT_VERSION);
+            }
+        } catch (err) {
+            console.error('Fetch fallback failed:', err);
+        }
+    }
+}
+
+/**
+ * Handle the update response
+ */
+function handleUpdateResponse(data, localVersion) {
+    if (!data || !data.tag_name) return;
+
+    const remoteVersion = data.tag_name.replace(/^v/, '');
+
+    console.log(`Checking updates: Local=${localVersion}, Remote=${remoteVersion}`);
+
+    if (compareVersions(remoteVersion, localVersion) > 0) {
+        // Find zip asset
+        let downloadUrl = data.html_url; // Fallback to release page
+        if (data.assets && data.assets.length > 0) {
+            const zipAsset = data.assets.find(asset => asset.name.endsWith('.zip'));
+            if (zipAsset) {
+                downloadUrl = zipAsset.browser_download_url;
+            }
+        }
+        showUpdateBanner(downloadUrl);
+    }
+}
+
+/**
+ * Show the update banner
+ */
+function showUpdateBanner(downloadUrl) {
+    const banner = document.getElementById('updateBanner');
+    if (banner) {
+        banner.style.display = 'block';
+        banner.textContent = t('updateAvailable'); // Use translation
+        banner.onclick = function () {
+            const cs = new CSInterface();
+            cs.openURLInDefaultBrowser(downloadUrl);
+        };
+    }
+}
 
 /**
  * Initialize extension
@@ -43,6 +177,15 @@ function init() {
     templateNameInput = document.getElementById('templateName');
     folderDepthInput = document.getElementById('folderDepth');
     languageSelect = document.getElementById('languageSelect');
+
+    // Set Version in Settings
+    const versionInfo = document.getElementById('versionInfo');
+    if (versionInfo) {
+        versionInfo.textContent = 'v' + CURRENT_VERSION;
+    }
+
+    // Check for updates
+    checkForUpdates();
 
     // Load saved settings first (to get language preference)
     loadSettings();
@@ -156,6 +299,14 @@ function loadTranslations(lang, callback) {
                 try {
                     translations = JSON.parse(xhr.responseText);
                     currentLang = lang;
+
+                    // Add update message manually if not in json yet (resilience)
+                    if (!translations.updateAvailable) {
+                        translations.updateAvailable = (lang === 'fr')
+                            ? "Mise à jour disponible ! Cliquez pour télécharger."
+                            : "Update available! Click to download.";
+                    }
+
                 } catch (e) {
                     console.error('Error parsing translations:', e);
                 }

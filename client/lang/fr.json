@@ -6,6 +6,7 @@
     "renameButtonFull": "Renommer la séquence",
     "renameInProgress": "En cours",
     "settings": {
+        "title": "Paramètres",
         "templateName": "Nom de la séquence template :",
         "templatePlaceholder": "Entrez le nom de la séquence...",
         "folderDepth": "Dossiers à remonter :",

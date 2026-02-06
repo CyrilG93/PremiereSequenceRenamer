@@ -6,6 +6,7 @@
     "renameButtonFull": "Rename sequence",
     "renameInProgress": "In progress",
     "settings": {
+        "title": "Settings",
         "templateName": "Template sequence name:",
         "templatePlaceholder": "Enter sequence name...",
         "folderDepth": "Folders to go up:",
