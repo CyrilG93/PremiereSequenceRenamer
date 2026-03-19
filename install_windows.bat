@@ -51,6 +51,6 @@ echo   2. Go to Window ^> Extensions ^> Sequence Renamer
 echo      Allez dans Fenetre ^> Extensions ^> Sequence Renamer
 echo.
 echo To uninstall / Pour desinstaller:
-echo   rmdir /s /q "%TARGET_DIR%"
+echo   delete the folder PremiereSequenceRenamer in C\CommonProgramFiles(x86)%\Adobe\CEP\extensions
 echo.
 pause
